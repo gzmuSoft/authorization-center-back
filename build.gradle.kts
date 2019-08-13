@@ -37,6 +37,10 @@ vertx {
   mainVerticle = "io.github.jponge.vertx.boot.BootVerticle"
 }
 
+tasks.test {
+  useJUnitPlatform()
+}
+
 tasks.withType<KotlinCompile> {
   kotlinOptions {
     freeCompilerArgs = listOf("-Xjsr305=strict")
