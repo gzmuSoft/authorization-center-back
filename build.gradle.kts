@@ -24,6 +24,7 @@ dependencies {
   implementation("io.vertx:vertx-mysql-client")
   implementation("io.vertx:vertx-auth-oauth2")
   implementation("io.vertx:vertx-lang-kotlin")
+  implementation("io.vertx:vertx-lang-kotlin-coroutines")
   implementation("io.github.jponge:vertx-boot:1.1.0")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
