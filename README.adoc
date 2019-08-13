@@ -1,0 +1,5 @@
+= Authorization-center
+
+image:https://img.shields.io/badge/vert.x-3.8.0-purple.svg[link="https://vertx.io"]
+
+贵州民族大学授权中心
