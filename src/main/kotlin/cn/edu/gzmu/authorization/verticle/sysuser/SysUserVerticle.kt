@@ -21,7 +21,7 @@ class SysUserVerticle : ControllerVerticle() {
     return if (path == ALL) {
       ok(
         vertx.eventBus().requestAwait<JsonObject>
-          (SysUserMysqlVerticle::class.java.name, JsonObject()).body()
+          (SysUserMysqlVerticle::class.java.name, request.getQueryParams()).body()
       )
     } else super.handleGet(request)
   }

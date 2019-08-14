@@ -2,6 +2,7 @@ package cn.edu.gzmu.authorization.verticle.web
 
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.jdbc.JDBCClient
+import io.vertx.ext.jdbc.spi.impl.HikariCPDataSourceProvider
 import io.vertx.kotlin.core.json.json
 import io.vertx.kotlin.core.json.obj
 import io.vertx.kotlin.coroutines.CoroutineVerticle
@@ -24,11 +25,12 @@ abstract class MysqlVerticle : CoroutineVerticle() {
   override suspend fun start() {
     client = JDBCClient.createShared(vertx, json {
       obj(
-        "url" to "jdbc:mysql://127.0.0.1:3306/gzmu-auth?useUnicode=true&characterEncoding=UTF-8&useOldAliasMetadataBehavior=true&autoReconnect=true&serverTimezone=UTC",
-        "driver_class" to "com.mysql.cj.jdbc.Driver",
-        "max_pool_size-loop" to 30,
-        "user" to "root",
-        "password" to "123456"
+        "jdbcUrl" to "jdbc:mysql://127.0.0.1:3306/gzmu-auth?useUnicode=true&characterEncoding=UTF-8&useOldAliasMetadataBehavior=true&autoReconnect=true&serverTimezone=UTC",
+        "driverClassName" to "com.mysql.cj.jdbc.Driver",
+        "maximumPoolSize" to 30,
+        "username" to "root",
+        "password" to "123456",
+        "provider_class" to HikariCPDataSourceProvider::class.java.name
       )
     })
 

@@ -20,6 +20,7 @@ val vertxVersion = "3.8.0"
 
 dependencies {
   implementation("mysql:mysql-connector-java:8.0.17")
+  implementation("com.zaxxer:HikariCP:3.3.1")
   implementation("org.slf4j:slf4j-api:2.0.0-alpha0")
   implementation("ch.qos.logback:logback-core:1.3.0-alpha4")
   implementation("ch.qos.logback:logback-classic:1.3.0-alpha4")

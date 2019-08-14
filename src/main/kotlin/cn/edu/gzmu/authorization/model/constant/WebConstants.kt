@@ -25,3 +25,9 @@ const val STATUS_CODE = "status_code"
 
 const val ERROR_CODE = "error_code"
 const val ERROR_MESSAGE = "error_message"
+
+const val PAGE = "page"
+const val SIZE = "size"
+const val SQL_ALL = "%"
+const val PAGE_START = "1"
+const val PAGE_SIZE = "10"
