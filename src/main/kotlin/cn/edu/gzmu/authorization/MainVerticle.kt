@@ -8,6 +8,8 @@ import cn.edu.gzmu.authorization.verticle.sysuser.SysUserVerticle
 import cn.edu.gzmu.authorization.verticle.web.ControllerVerticle
 import cn.edu.gzmu.authorization.verticle.web.DispatchVerticle
 import io.vertx.core.Vertx
+import io.vertx.core.logging.LoggerFactory.LOGGER_DELEGATE_FACTORY_CLASS_NAME
+import io.vertx.core.logging.SLF4JLogDelegateFactory
 import kotlin.reflect.KClass
 
 /**
@@ -34,6 +36,7 @@ fun routePath(verticle: KClass<out ControllerVerticle>): String =
 
 
 fun main() {
+  System.setProperty(LOGGER_DELEGATE_FACTORY_CLASS_NAME, SLF4JLogDelegateFactory::class.java.name)
   val vertx = Vertx.vertx()
   vertx.deployVerticle(DashboardVerticle::class.java.name)
   vertx.deployVerticle(SysUserVerticle::class.java.name)
