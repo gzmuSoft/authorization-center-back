@@ -1,4 +1,4 @@
-package cn.edu.gzmu.authorization.web
+package cn.edu.gzmu.authorization.verticle.web
 
 import cn.edu.gzmu.authorization.model.constant.*
 import io.netty.handler.codec.http.HttpMethod
@@ -8,6 +8,7 @@ import io.vertx.core.json.JsonObject
 import io.vertx.kotlin.coroutines.CoroutineVerticle
 import kotlinx.coroutines.launch
 import io.netty.handler.codec.http.HttpResponseStatus.*
+import io.vertx.kotlin.core.Vertx
 
 /**
  *
@@ -21,6 +22,7 @@ abstract class ControllerVerticle : CoroutineVerticle() {
     start(this::class.java.asSubclass(this::class.java).name)
     println("${this::class.java.asSubclass(this::class.java).name} is deployed")
   }
+  // -----------------------------------------------------------------------------------------------------------------
 
   private fun start(address: String) {
     vertx.eventBus().consumer<JsonObject>(address) {
@@ -30,21 +32,26 @@ abstract class ControllerVerticle : CoroutineVerticle() {
       launch {
         val request = WebRequest(reqJson)
         when (HttpMethod(reqJson.getString(HTTP_METHOD))) {
-          POST -> it.reply(doPost(request).toJson())
-          GET -> it.reply(doGet(request).toJson())
-          PUT -> it.reply(doPut(request).toJson())
-          PATCH -> it.reply(doPatch(request).toJson())
-          DELETE -> it.reply(doDelete(request).toJson())
-          else -> it.reply(
-            JsonObject().put(
-              RESPONSE_JSON,
-              JsonObject().put(MESSAGE, "Http Method is not specified")
-            )
-          )
+          POST -> it.reply(handlePost(request).toJson())
+          GET -> it.reply(handleGet(request).toJson())
+          PUT -> it.reply(handlePut(request).toJson())
+          PATCH -> it.reply(handlePatch(request).toJson())
+          DELETE -> it.reply(handleDelete(request).toJson())
+          else -> it.reply(methodNotAllowed())
         }
       }
     }
   }
+
+  // -----------------------------------------------------------------------------------------------------------------
+
+  open suspend fun handleGet(request: WebRequest): WebResponse = methodNotAllowed()
+  open suspend fun handlePost(request: WebRequest): WebResponse = methodNotAllowed()
+  open suspend fun handlePut(request: WebRequest): WebResponse = methodNotAllowed()
+  open suspend fun handleDelete(request: WebRequest): WebResponse = methodNotAllowed()
+  open suspend fun handlePatch(request: WebRequest): WebResponse = methodNotAllowed()
+
+  // -----------------------------------------------------------------------------------------------------------------
 
   /**
    * 封装错误信息
@@ -121,6 +128,15 @@ abstract class ControllerVerticle : CoroutineVerticle() {
     WebResponse(WebResponseType.ERROR, errorBody(response, NOT_FOUND), NOT_FOUND)
 
   /**
+   * methodNotAllowed 404
+   *
+   * @param response 响应
+   * @return 结果
+   */
+  protected fun methodNotAllowed(response: JsonObject = JsonObject()): WebResponse =
+    WebResponse(WebResponseType.ERROR, errorBody(response, METHOD_NOT_ALLOWED), METHOD_NOT_ALLOWED)
+
+  /**
    * internalServerError 500
    *
    * @param response 响应
@@ -128,6 +144,8 @@ abstract class ControllerVerticle : CoroutineVerticle() {
    */
   protected fun internalServerError(response: JsonObject = JsonObject()): WebResponse =
     WebResponse(WebResponseType.ERROR, errorBody(response), INTERNAL_SERVER_ERROR)
+
+  // -----------------------------------------------------------------------------------------------------------------
 
   /**
    * 相应类型
@@ -179,9 +197,4 @@ abstract class ControllerVerticle : CoroutineVerticle() {
     fun body(): JsonObject = request.getJsonObject(BODY)
   }
 
-  open suspend fun doGet(request: WebRequest): WebResponse = WebResponse()
-  open suspend fun doPost(request: WebRequest): WebResponse = WebResponse()
-  open suspend fun doPut(request: WebRequest): WebResponse = WebResponse()
-  open suspend fun doDelete(request: WebRequest): WebResponse = WebResponse()
-  open suspend fun doPatch(request: WebRequest): WebResponse = WebResponse()
 }

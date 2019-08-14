@@ -1,4 +1,4 @@
-package cn.edu.gzmu.authorization.web
+package cn.edu.gzmu.authorization.verticle.web
 
 import cn.edu.gzmu.authorization.model.constant.*
 import io.netty.handler.codec.http.HttpHeaderValues
@@ -58,9 +58,6 @@ abstract class DispatchVerticle : CoroutineVerticle() {
       val headers = routingContext.request().headers()
       val params = routingContext.queryParams()
       val attributes = routingContext.request().formAttributes()
-
-      // --------------------------- path
-      requestJson.put(PATH, path)
 
       // --------------------------- method
       requestJson.put(HTTP_METHOD, httpMethod)
@@ -124,6 +121,8 @@ abstract class DispatchVerticle : CoroutineVerticle() {
       // --------------------------- launch
       launch {
         val address = getVerticleAddressByPath(path)
+        // --------------------------- path
+        requestJson.put(PATH, path.removePrefix(address))
         val responseJson = if (address != "") {
           vertx.eventBus().requestAwait<JsonObject>(address, requestJson).body()
         } else {
@@ -141,7 +140,7 @@ abstract class DispatchVerticle : CoroutineVerticle() {
             routingContext.response().statusCode = error.getInteger(ERROR_CODE)
             routingContext.response().end(error.toBuffer())
           }
-          else ->  routingContext.response().end()
+          else -> routingContext.response().end()
         }
       }
       Unit

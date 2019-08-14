@@ -1,10 +1,12 @@
 package cn.edu.gzmu.authorization
 
 import cn.edu.gzmu.authorization.annotation.Route
-import cn.edu.gzmu.authorization.dashboard.DashboardVerticle
+import cn.edu.gzmu.authorization.verticle.dashboard.DashboardVerticle
 import cn.edu.gzmu.authorization.model.constant.DASHBOARD
-import cn.edu.gzmu.authorization.web.ControllerVerticle
-import cn.edu.gzmu.authorization.web.DispatchVerticle
+import cn.edu.gzmu.authorization.verticle.sysuser.SysUserMysqlVerticle
+import cn.edu.gzmu.authorization.verticle.sysuser.SysUserVerticle
+import cn.edu.gzmu.authorization.verticle.web.ControllerVerticle
+import cn.edu.gzmu.authorization.verticle.web.DispatchVerticle
 import io.vertx.core.Vertx
 import kotlin.reflect.KClass
 
@@ -19,9 +21,11 @@ import kotlin.reflect.KClass
 class MainVerticle : DispatchVerticle() {
 
   override suspend fun getVerticleAddressByPath(path: String): String =
-    if (path.startsWith(routePath(DashboardVerticle::class)))
-      DashboardVerticle::class.java.name
-    else ""
+    when {
+        path.startsWith(routePath(DashboardVerticle::class)) -> DashboardVerticle::class.java.name
+        path.startsWith(routePath(SysUserVerticle::class)) -> SysUserVerticle::class.java.name
+        else -> ""
+    }
 
 }
 
@@ -32,5 +36,7 @@ fun routePath(verticle: KClass<out ControllerVerticle>): String =
 fun main() {
   val vertx = Vertx.vertx()
   vertx.deployVerticle(DashboardVerticle::class.java.name)
+  vertx.deployVerticle(SysUserVerticle::class.java.name)
+  vertx.deployVerticle(SysUserMysqlVerticle::class.java.name)
   vertx.deployVerticle(MainVerticle::class.java.name)
 }

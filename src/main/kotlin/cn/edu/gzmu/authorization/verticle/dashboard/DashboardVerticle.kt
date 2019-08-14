@@ -1,9 +1,10 @@
-package cn.edu.gzmu.authorization.dashboard
+package cn.edu.gzmu.authorization.verticle.dashboard
 
 import cn.edu.gzmu.authorization.annotation.Route
 import cn.edu.gzmu.authorization.model.constant.DASHBOARD
 import cn.edu.gzmu.authorization.model.constant.ERROR_MESSAGE
-import cn.edu.gzmu.authorization.web.ControllerVerticle
+import cn.edu.gzmu.authorization.model.constant.PATH
+import cn.edu.gzmu.authorization.verticle.web.ControllerVerticle
 import io.vertx.core.json.JsonObject
 
 /**
@@ -14,12 +15,11 @@ import io.vertx.core.json.JsonObject
  */
 @Route(DASHBOARD)
 class DashboardVerticle : ControllerVerticle() {
-  override suspend fun doGet(request: WebRequest): WebResponse {
-    return try {
-      WebResponse()
+  override suspend fun handleGet(request: WebRequest): WebResponse =
+    try {
+      ok(JsonObject().put(PATH, request.getPath()))
     } catch (throwable: Throwable) {
       throwable.printStackTrace()
       internalServerError(JsonObject().put(ERROR_MESSAGE, throwable.message))
     }
-  }
 }
