@@ -3,9 +3,11 @@ package cn.edu.gzmu.authorization.web
 import cn.edu.gzmu.authorization.model.constant.*
 import io.netty.handler.codec.http.HttpMethod
 import io.netty.handler.codec.http.HttpMethod.*
+import io.netty.handler.codec.http.HttpResponseStatus
 import io.vertx.core.json.JsonObject
 import io.vertx.kotlin.coroutines.CoroutineVerticle
 import kotlinx.coroutines.launch
+import io.netty.handler.codec.http.HttpResponseStatus.*
 
 /**
  *
@@ -14,6 +16,7 @@ import kotlinx.coroutines.launch
  * @date 2019/8/13 下午5:31
  */
 abstract class ControllerVerticle : CoroutineVerticle() {
+
   override suspend fun start() {
     start(this::class.java.asSubclass(this::class.java).name)
     println("${this::class.java.asSubclass(this::class.java).name} is deployed")
@@ -30,48 +33,155 @@ abstract class ControllerVerticle : CoroutineVerticle() {
           POST -> it.reply(doPost(request).toJson())
           GET -> it.reply(doGet(request).toJson())
           PUT -> it.reply(doPut(request).toJson())
-          else -> it.reply(JsonObject().put(RESPONSE_JSON,
-            JsonObject().put(MESSAGE, "Http Method is not specified")))
+          PATCH -> it.reply(doPatch(request).toJson())
+          DELETE -> it.reply(doDelete(request).toJson())
+          else -> it.reply(
+            JsonObject().put(
+              RESPONSE_JSON,
+              JsonObject().put(MESSAGE, "Http Method is not specified")
+            )
+          )
         }
       }
-
     }
   }
 
+  /**
+   * 封装错误信息
+   *
+   * @param response 需要封装的响应
+   */
+  private fun errorBody(response: JsonObject, httpStatus: HttpResponseStatus = INTERNAL_SERVER_ERROR): JsonObject {
+    if (!response.containsKey(ERROR_CODE)) response.put(ERROR_CODE, httpStatus.code())
+    if (!response.containsKey(ERROR_MESSAGE)) response.put(ERROR_MESSAGE, httpStatus.reasonPhrase())
+    return response
+  }
+
+  /**
+   * ok 200
+   *
+   * @param response 响应
+   * @return 结果
+   */
+  protected fun ok(response: JsonObject = JsonObject()): WebResponse =
+    WebResponse(response)
+
+  /**
+   * created 201
+   *
+   * @param response 响应
+   * @return 结果
+   */
+  protected fun created(response: JsonObject = JsonObject()): WebResponse =
+    WebResponse(values = response, statusCode = CREATED)
+
+  /**
+   * noContent 204
+   *
+   * @param response 响应
+   * @return 结果
+   */
+  protected fun noContent(response: JsonObject = JsonObject()): WebResponse =
+    WebResponse(values = response, statusCode = NO_CONTENT)
+
+  /**
+   * badRequest 400
+   *
+   * @param response 响应
+   * @return 结果
+   */
+  protected fun badRequest(response: JsonObject = JsonObject()): WebResponse =
+    WebResponse(WebResponseType.ERROR, errorBody(response, BAD_REQUEST), BAD_REQUEST)
+
+  /**
+   * unauthorized 401
+   *
+   * @param response 响应
+   * @return 结果
+   */
+  protected fun unauthorized(response: JsonObject = JsonObject()): WebResponse =
+    WebResponse(WebResponseType.ERROR, errorBody(response, UNAUTHORIZED), UNAUTHORIZED)
+
+  /**
+   * forbidden 403
+   *
+   * @param response 响应
+   * @return 结果
+   */
+  protected fun forbidden(response: JsonObject = JsonObject()): WebResponse =
+    WebResponse(WebResponseType.ERROR, errorBody(response, FORBIDDEN), FORBIDDEN)
+
+  /**
+   * notFound 404
+   *
+   * @param response 响应
+   * @return 结果
+   */
+  protected fun notFound(response: JsonObject = JsonObject()): WebResponse =
+    WebResponse(WebResponseType.ERROR, errorBody(response, NOT_FOUND), NOT_FOUND)
+
+  /**
+   * internalServerError 500
+   *
+   * @param response 响应
+   * @return 结果
+   */
+  protected fun internalServerError(response: JsonObject = JsonObject()): WebResponse =
+    WebResponse(WebResponseType.ERROR, errorBody(response), INTERNAL_SERVER_ERROR)
+
+  /**
+   * 相应类型
+   */
   enum class WebResponseType {
-    EMPTY_RESPONSE, JSON
+    /**
+     * 无响应体
+     */
+    EMPTY,
+    /**
+     * json
+     */
+    JSON,
+    /**
+     * error
+     */
+    ERROR
   }
 
   inner class WebResponse(
-    private val type: WebResponseType,
-    val path: String = "/",
-    private val values: JsonObject = JsonObject()
+    private val type: WebResponseType = WebResponseType.JSON,
+    private val values: JsonObject = JsonObject(),
+    statusCode: HttpResponseStatus = OK
   ) {
-    constructor(json: JsonObject = JsonObject()) : this(WebResponseType.JSON, "index.htm", json)
-    constructor() : this(WebResponseType.EMPTY_RESPONSE)
+    constructor(json: JsonObject = JsonObject()) : this(WebResponseType.JSON, json)
+    constructor() : this(WebResponseType.EMPTY)
+
+    init {
+      values.put(STATUS_CODE, statusCode.code())
+    }
 
     fun toJson(): JsonObject =
       when (type) {
         WebResponseType.JSON -> JsonObject().put(RESPONSE_JSON, values)
-        else -> JsonObject().put(EMPTY_RESPONSE, true)
+        WebResponseType.ERROR -> JsonObject().put(RESPONSE_ERROR, values)
+        else -> JsonObject().put(RESPONSE_EMPTY, true)
       }
-
   }
 
-  inner class WebRequest(val json: JsonObject) {
-    fun getPath(): String = json.getString(PATH)
-    fun getHttpMethod(): String = json.getString(HTTP_METHOD)
-    fun getCookies(): JsonObject = json.getJsonObject(COOKIES)
-    fun getHeaders(): JsonObject = json.getJsonObject(HEADERS)
-    fun getQueryParams(): JsonObject = json.getJsonObject(QUERY_PARAM)
-    fun getFormAttributes(): JsonObject = json.getJsonObject(FORM_ATTRIBUTES)
-    fun getUploadFiles(): JsonObject = json.getJsonObject(UPLOAD_FILES)
-    fun getUploadFileNames(): JsonObject = json.getJsonObject(UPLOAD_FILE_NAMES)
-    fun body(): JsonObject = json.getJsonObject(BODY)
+  inner class WebRequest(private val request: JsonObject) {
+    fun getPath(): String = request.getString(PATH)
+    fun getHttpMethod(): String = request.getString(HTTP_METHOD)
+    fun getCookies(): JsonObject = request.getJsonObject(COOKIES)
+    fun getHeaders(): JsonObject = request.getJsonObject(HEADERS)
+    fun getQueryParams(): JsonObject = request.getJsonObject(QUERY_PARAM)
+    fun getFormAttributes(): JsonObject = request.getJsonObject(FORM_ATTRIBUTES)
+    fun getUploadFiles(): JsonObject = request.getJsonObject(UPLOAD_FILES)
+    fun getUploadFileNames(): JsonObject = request.getJsonObject(UPLOAD_FILE_NAMES)
+    fun body(): JsonObject = request.getJsonObject(BODY)
   }
 
   open suspend fun doGet(request: WebRequest): WebResponse = WebResponse()
   open suspend fun doPost(request: WebRequest): WebResponse = WebResponse()
   open suspend fun doPut(request: WebRequest): WebResponse = WebResponse()
-
+  open suspend fun doDelete(request: WebRequest): WebResponse = WebResponse()
+  open suspend fun doPatch(request: WebRequest): WebResponse = WebResponse()
 }

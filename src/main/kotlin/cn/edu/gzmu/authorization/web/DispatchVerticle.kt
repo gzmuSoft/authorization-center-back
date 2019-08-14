@@ -59,6 +59,7 @@ abstract class DispatchVerticle : CoroutineVerticle() {
       val params = routingContext.queryParams()
       val attributes = routingContext.request().formAttributes()
 
+      // --------------------------- path
       requestJson.put(PATH, path)
 
       // --------------------------- method
@@ -104,11 +105,13 @@ abstract class DispatchVerticle : CoroutineVerticle() {
       requestJson.put(FORM_ATTRIBUTES, json)
 
       val contentType = headers.get(HttpHeaders.CONTENT_TYPE)
+
       // --------------------------- body
       if (contentType != null && contentType.contentEquals(HttpHeaderValues.APPLICATION_JSON)) {
         requestJson.put(BODY, routingContext.bodyAsJson)
       }
 
+      // --------------------------- upload file
       json = jsonObjectOf()
       val json2 = jsonObjectOf()
       for (f in routingContext.fileUploads()) {
@@ -126,19 +129,19 @@ abstract class DispatchVerticle : CoroutineVerticle() {
         } else {
           JsonObject()
         }
+        val code = requestJson.getInteger(STATUS_CODE, HttpResponseStatus.OK.code())
+        routingContext.response().statusCode = code
         // --------------------------- response
         when {
           responseJson.containsKey(RESPONSE_JSON) -> routingContext.response().end(
-            responseJson.getJsonObject(
-              RESPONSE_JSON
-            ).toBuffer()
+            responseJson.getJsonObject(RESPONSE_JSON).toBuffer()
           )
-          responseJson.containsKey(EMPTY_RESPONSE) -> routingContext.response().end()
-          else -> {
-            routingContext.response().statusCode = HttpResponseStatus.INTERNAL_SERVER_ERROR.code()
-            routingContext.response().statusMessage = HttpResponseStatus.INTERNAL_SERVER_ERROR.reasonPhrase()
-            routingContext.response().end()
+          responseJson.containsKey(RESPONSE_ERROR) -> {
+            val error = requestJson.getJsonObject(RESPONSE_ERROR)
+            routingContext.response().statusCode = error.getInteger(ERROR_CODE)
+            routingContext.response().end(error.toBuffer())
           }
+          else ->  routingContext.response().end()
         }
       }
       Unit

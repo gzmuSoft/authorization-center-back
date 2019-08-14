@@ -7,7 +7,6 @@ import cn.edu.gzmu.authorization.web.ControllerVerticle
 import cn.edu.gzmu.authorization.web.DispatchVerticle
 import io.vertx.core.Vertx
 import kotlin.reflect.KClass
-import kotlin.reflect.full.findAnnotation
 
 /**
  * Main
