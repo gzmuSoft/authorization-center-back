@@ -17,6 +17,7 @@ import io.vertx.kotlin.core.http.listenAwait
 import kotlinx.coroutines.launch
 import io.vertx.kotlin.servicediscovery.getRecordsAwait
 import io.vertx.servicediscovery.Record
+import io.vertx.servicediscovery.ServiceDiscovery
 import io.vertx.servicediscovery.types.HttpEndpoint
 
 
@@ -89,13 +90,13 @@ class ApiGatewayVerticle : RestVerticle() {
           ok(context, response.bodyAsJsonObject())
           promise.complete()
         }
+        ServiceDiscovery.releaseServiceObject(discovery, client)
       } else {
         log.error("Error: http $path failed!")
         promise.fail("Error: http $path failed!")
       }
     }
   }
-
 
   private fun buildHostURI(): String {
     val port = config.getInteger(PORT, DEFAULT_PORT)
