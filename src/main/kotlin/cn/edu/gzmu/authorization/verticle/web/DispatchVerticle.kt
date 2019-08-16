@@ -2,16 +2,13 @@ package cn.edu.gzmu.authorization.verticle.web
 
 import cn.edu.gzmu.authorization.model.constant.*
 import io.netty.handler.codec.http.HttpHeaderValues
-import io.netty.handler.codec.http.HttpResponseStatus
 import io.vertx.core.http.HttpHeaders
 import io.vertx.core.http.HttpMethod
-import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.handler.BodyHandler
 import io.vertx.ext.web.handler.CookieHandler
 import io.vertx.ext.web.handler.CorsHandler
-import io.vertx.kotlin.core.eventbus.requestAwait
 import io.vertx.kotlin.core.http.listenAwait
 import io.vertx.kotlin.core.json.jsonObjectOf
 import io.vertx.kotlin.coroutines.CoroutineVerticle
@@ -25,7 +22,6 @@ import kotlinx.coroutines.launch
  */
 abstract class DispatchVerticle : CoroutineVerticle() {
 
-  abstract suspend fun getVerticleAddressByPath(path: String): String
 
   override suspend fun start() {
     val router = Router.router(vertx)
@@ -49,7 +45,8 @@ abstract class DispatchVerticle : CoroutineVerticle() {
         routingContext.next()
       }
     // -----------------------------------------------------------------------------------------------------------------
-    val routingHandler = { routingContext: RoutingContext ->
+
+    router.route().path("/**").handler { routingContext: RoutingContext ->
 
       val requestJson = jsonObjectOf()
       val path = routingContext.request().path()
@@ -58,6 +55,9 @@ abstract class DispatchVerticle : CoroutineVerticle() {
       val headers = routingContext.request().headers()
       val params = routingContext.queryParams()
       val attributes = routingContext.request().formAttributes()
+
+      // --------------------------- path
+      requestJson.put(PATH, path)
 
       // --------------------------- method
       requestJson.put(HTTP_METHOD, httpMethod)
@@ -118,43 +118,47 @@ abstract class DispatchVerticle : CoroutineVerticle() {
       requestJson.put(UPLOAD_FILES, json)
       requestJson.put(UPLOAD_FILE_NAMES, json2)
 
+      routingContext.put(REQUEST, requestJson)
+      routingContext.next()
       // --------------------------- launch
-      launch {
-        val address = getVerticleAddressByPath(path)
-        // --------------------------- path
-        requestJson.put(PATH, path.removePrefix(address))
-        val responseJson = if (address != "") {
-          vertx.eventBus().requestAwait<JsonObject>(address, requestJson).body()
-        } else {
-          JsonObject()
-        }
-        val code = requestJson.getInteger(STATUS_CODE, HttpResponseStatus.OK.code())
-        routingContext.response().statusCode = code
-        // --------------------------- response
-        when {
-          responseJson.containsKey(RESPONSE_JSON) -> routingContext.response().end(
-            responseJson.getJsonObject(RESPONSE_JSON).toBuffer()
-          )
-          responseJson.containsKey(RESPONSE_ERROR) -> {
-            val error = requestJson.getJsonObject(RESPONSE_ERROR)
-            routingContext.response().statusCode = error.getInteger(ERROR_CODE)
-            routingContext.response().end(error.toBuffer())
-          }
-          else -> routingContext.response().end()
-        }
-      }
-      Unit
+      // launch {
+      // val address = getVerticleAddressByPath(path)
+      // val responseJson = if (address != "") {
+      //  vertx.eventBus().requestAwait<JsonObject>(address, requestJson).body()
+      // } else {
+      //   JsonObject()
+      // }
+      // val code = requestJson.getInteger(STATUS_CODE, HttpResponseStatus.OK.code())
+      // routingContext.response().statusCode = code
+      // --------------------------- response
+      // when {
+      //   responseJson.containsKey(RESPONSE_JSON) -> routingContext.response().end(
+      //   responseJson.getJsonObject(RESPONSE_JSON).toBuffer()
+      // )
+      //  responseJson.containsKey(RESPONSE_ERROR) -> {
+      //    val error = requestJson.getJsonObject(RESPONSE_ERROR)
+      //    routingContext.response().statusCode = error.getInteger(ERROR_CODE)
+      //    routingContext.response().end(error.toBuffer())
+      //  }
+      //  else -> routingContext.response().end()
+      // }
+      // }
+      // Unit
     }
 
     // --------------------------- handle
-    router.get("/*").handler(routingHandler)
-    router.post("/*").handler(routingHandler)
-    router.put("/*").handler(routingHandler)
+    // router.get("/*").handler(routingHandler)
+    // router.post("/*").handler(routingHandler)
+    // router.put("/*").handler(routingHandler)
+    launch {
+      routerHandler(router)
+    }
 
     // --------------------------- start
     val httpServer = vertx.createHttpServer()
     httpServer.requestHandler(router).listenAwait(8888)
   }
 
+  abstract suspend fun routerHandler(router: Router)
 
 }

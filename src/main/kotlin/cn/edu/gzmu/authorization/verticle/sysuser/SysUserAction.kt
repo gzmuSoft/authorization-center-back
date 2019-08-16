@@ -7,7 +7,7 @@ package cn.edu.gzmu.authorization.verticle.sysuser
  * @date 2019/8/14 下午1:52
  */
 // ---------------------------- path
-const val ALL = "/all"
+const val ALL = "/user/all"
 
 // ---------------------------- sql
 const val QUERY_PAGE =

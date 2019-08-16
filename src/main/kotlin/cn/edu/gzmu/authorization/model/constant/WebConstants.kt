@@ -16,6 +16,7 @@ const val BODY = "body"
 const val UPLOAD_FILES = "upload_files"
 const val UPLOAD_FILE_NAMES = "upload_file_names"
 
+const val REQUEST = "request"
 const val RESPONSE_JSON = "response_json"
 const val RESPONSE_EMPTY = "response_empty"
 const val RESPONSE_ERROR = "response_error"

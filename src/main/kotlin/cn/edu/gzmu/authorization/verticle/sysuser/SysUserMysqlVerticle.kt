@@ -23,18 +23,13 @@ import java.util.stream.Collectors
  */
 class SysUserMysqlVerticle : MysqlVerticle() {
   override suspend fun handle(body: JsonObject): JsonObject {
-    val params = JsonArray()
-    val page = body.getString(PAGE, PAGE_START).toInt()
-    val size = body.getString(SIZE, PAGE_SIZE).toInt()
-    val condition = body.getCondition(NAME)
-    params.add(condition).add(condition).add(condition)
-      .add((page - 1) * size).add(size)
-    val connection = client.getConnectionAwait()
-    val resultSet = connection.queryWithParamsAwait(QUERY_PAGE, params)
-    params.remove(4)
-    params.remove(3)
-    val count = connection.queryWithParamsAwait(QUERY_COUNT, params).results[0].getInteger(0)
-    val result = resultSet.rows.toCollection(ArrayList())
-    return Page(count, page, size, result.size, JsonArray(result)).toJson()
+//    val connection = client.getConnectionAwait()
+//    val resultSet = connection.queryWithParamsAwait(QUERY_PAGE, params)
+//    params.remove(4)
+//    params.remove(3)
+//    val count = connection.queryWithParamsAwait(QUERY_COUNT, params).results[0].getInteger(0)
+//    val result = resultSet.rows.toCollection(ArrayList())
+//    return Page(count, page, size, result.size, JsonArray(result)).toJson()
+    TODO("Waiting for be removing....")
   }
 }
