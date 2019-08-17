@@ -41,7 +41,10 @@ private fun response(
         ex.printStackTrace()
         ex.message ?: httpStatus.reasonPhrase() ?: response.toString()
       } else
-        response.toString()
+        response
+          .put("error_code", httpStatus.code())
+          .put("error_message", httpStatus.reasonPhrase())
+          .toString()
     )
 }
 

@@ -7,6 +7,7 @@ import cn.edu.gzmu.authorization.common.ok
 import com.google.common.base.Splitter
 import io.netty.handler.codec.http.HttpResponseStatus
 import io.vertx.core.Promise
+import io.vertx.core.Vertx
 import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.handler.BodyHandler
 import org.slf4j.LoggerFactory
@@ -44,7 +45,7 @@ class ApiGatewayVerticle : RestVerticle() {
     vertx.createHttpServer(httpServerOptions)
       .requestHandler(router::accept)
       .listenAwait(port, host)
-    log.info("Success start api gateway")
+    log.info("Success start api gateway on $host:$port")
   }
 
   private fun dispatchRequests(context: RoutingContext) {
@@ -109,3 +110,7 @@ class ApiGatewayVerticle : RestVerticle() {
   }
 }
 
+fun main() {
+  val vertx = Vertx.vertx()
+  vertx.deployVerticle(ApiGatewayVerticle::class.java.name)
+}

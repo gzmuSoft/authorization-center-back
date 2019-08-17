@@ -77,7 +77,7 @@ abstract class BaseVerticle : CoroutineVerticle() {
 
   override suspend fun stop() {
     val result = registeredRecords.map {
-      Future.future<Unit> { promise ->
+      Future.future<Any> { promise ->
         discovery.unpublish(it.registration, promise::complete)
       }
     }
