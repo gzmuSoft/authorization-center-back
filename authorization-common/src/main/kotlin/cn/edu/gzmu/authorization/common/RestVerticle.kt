@@ -3,11 +3,15 @@ package cn.edu.gzmu.authorization.common
 import io.vertx.ext.web.Router
 import io.vertx.kotlin.core.http.listenAwait
 import io.vertx.core.http.HttpMethod
+import io.vertx.ext.web.Route
+import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.handler.CookieHandler
 import io.vertx.ext.web.handler.CorsHandler
 import io.vertx.ext.web.handler.SessionHandler
 import io.vertx.ext.web.sstore.ClusteredSessionStore
 import io.vertx.ext.web.sstore.LocalSessionStore
+import io.vertx.kotlin.coroutines.dispatcher
+import kotlinx.coroutines.launch
 import java.util.HashSet
 import java.util.Objects
 
@@ -23,6 +27,7 @@ abstract class RestVerticle : BaseVerticle() {
     vertx.createHttpServer()
       .requestHandler(router::accept)
       .listenAwait(port, host)
+    println("${this::class.java.asSubclass(this::class.java).name} http is start on $host:$port")
   }
 
   protected fun enableCorsSupport(router: Router): Router {
@@ -64,4 +69,15 @@ abstract class RestVerticle : BaseVerticle() {
       .handler(SessionHandler.create(ClusteredSessionStore.create(vertx, name)))
   }
 
+  fun Route.coroutineHandler(fn: suspend (RoutingContext) -> Unit) {
+    handler { ctx ->
+      launch(ctx.vertx().dispatcher()) {
+        try {
+          fn(ctx)
+        } catch (e: Exception) {
+          ctx.fail(e)
+        }
+      }
+    }
+  }
 }

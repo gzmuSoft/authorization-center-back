@@ -31,7 +31,7 @@ abstract class BaseVerticle : CoroutineVerticle() {
 
   protected lateinit var discovery: ServiceDiscovery
   protected lateinit var circuitBreaker: CircuitBreaker
-  protected var registeredRecords: Set<Record> = ConcurrentHashSet()
+  protected var registeredRecords: MutableSet<Record> = ConcurrentHashSet()
 
   override suspend fun start() {
     discovery = ServiceDiscovery.create(vertx, ServiceDiscoveryOptions().setBackendConfiguration(config))
@@ -71,8 +71,14 @@ abstract class BaseVerticle : CoroutineVerticle() {
   }
 
   private suspend fun publish(record: Record) {
-    discovery.publishAwait(record)
-    log.info("Service <${record.name}> published!")
+    discovery.publish(record) {
+      if (it.succeeded()) {
+        registeredRecords.add(record)
+        log.info("Service <${record.name}> published succeed!")
+      } else{
+        log.error("Service <${record.name}> published failed!")
+      }
+    }
   }
 
   override suspend fun stop() {

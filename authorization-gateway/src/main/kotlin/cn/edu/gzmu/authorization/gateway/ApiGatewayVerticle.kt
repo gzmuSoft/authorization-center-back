@@ -12,6 +12,7 @@ import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.handler.BodyHandler
 import org.slf4j.LoggerFactory
 import io.vertx.core.http.HttpServerOptions
+import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.client.WebClient
 import io.vertx.kotlin.core.http.listenAwait
@@ -106,7 +107,10 @@ class ApiGatewayVerticle : RestVerticle() {
   }
 
   private suspend fun getAllEndpoints(): List<Record> {
-    return discovery.getRecordsAwait { record -> record.type == HttpEndpoint.TYPE }
+    return discovery.getRecordsAwait { record ->
+      println("123123 ${record.name}")
+      true
+    }
   }
 }
 

@@ -35,36 +35,42 @@ allprojects {
   }
 
   dependencies {
-    implementation("com.google.guava:guava:28.0-jre")
-    implementation("org.slf4j:slf4j-api:2.0.0-alpha0")
-    implementation("ch.qos.logback:logback-core:1.3.0-alpha4")
-    implementation("ch.qos.logback:logback-classic:1.3.0-alpha4")
     implementation("io.vertx:vertx-web")
     implementation("io.vertx:vertx-web-client")
     implementation("io.vertx:vertx-lang-kotlin")
     implementation("io.vertx:vertx-lang-kotlin-coroutines")
     implementation("io.vertx:vertx-service-discovery")
+    implementation("io.vertx:vertx-service-proxy")
     implementation("io.vertx:vertx-circuit-breaker")
     implementation("io.vertx:vertx-config")
+    implementation("io.vertx:vertx-mysql-client")
     implementation("io.github.jponge:vertx-boot:1.1.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.0-RC2")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("io.vertx:vertx-codegen")
+    implementation("com.google.guava:guava:28.0-jre")
+    implementation("org.slf4j:slf4j-api:2.0.0-alpha0")
+    implementation("ch.qos.logback:logback-core:1.3.0-alpha4")
+    implementation("ch.qos.logback:logback-classic:1.3.0-alpha4")
     kapt("io.vertx:vertx-service-proxy:$vertxVersion:processor")
+    kapt("io.vertx:vertx-codegen:$vertxVersion:processor")
     testImplementation("io.vertx:vertx-junit5")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     testImplementation("org.junit.jupiter:junit-jupiter-api")
   }
-}
 
+  kapt{
+    arguments {
+      arg("codegen.output", project.file("src/main/generated").path)
+      arg("kapt.kotlin.generated", project.file("src/main/generated").path)
+    }
+    javacOptions {
+      option("-AoutputDirectory", project.file("src/main/generated").path)
+      option("-Acodegen.output", project.file("src/main/generated").path)
+    }
+  }
 
-dependencies {
-  implementation("mysql:mysql-connector-java:8.0.17")
-  implementation("com.zaxxer:HikariCP:3.3.1")
-  implementation("io.vertx:vertx-web-client")
-  implementation("io.vertx:vertx-auth-jwt")
-  implementation("io.vertx:vertx-jdbc-client")
-  implementation("io.vertx:vertx-auth-oauth2")
 }
 
 vertx {
