@@ -14,6 +14,11 @@ import io.vertx.kotlin.coroutines.dispatcher
 import kotlinx.coroutines.launch
 import java.util.HashSet
 import java.util.Objects
+import io.vertx.core.AsyncResult
+import io.vertx.core.Handler
+import io.vertx.core.Promise
+import io.vertx.core.json.JsonArray
+import io.vertx.core.json.JsonObject
 
 
 /**
@@ -69,6 +74,9 @@ abstract class RestVerticle : BaseVerticle() {
       .handler(SessionHandler.create(ClusteredSessionStore.create(vertx, name)))
   }
 
+  protected fun likeParam(param: String?): String = if (Objects.isNull(param)) "%" else "%$param%"
+
+
   fun Route.coroutineHandler(fn: suspend (RoutingContext) -> Unit) {
     handler { ctx ->
       launch(ctx.vertx().dispatcher()) {
@@ -80,4 +88,22 @@ abstract class RestVerticle : BaseVerticle() {
       }
     }
   }
+
+  protected fun <T> resultHandlerNonEmpty(context: RoutingContext): Handler<AsyncResult<T>> {
+    return Handler { ar ->
+      if (ar.succeeded()) {
+        val res = ar.result()
+        if (res == null || (res is JsonObject && res.isEmpty)) {
+          notFound(context)
+          return@Handler
+        }
+        if (res is JsonArray) ok(context, res)
+        else ok(context, JsonObject.mapFrom(res))
+      } else {
+        internalServerError(context, ex = ar.cause())
+        ar.cause().printStackTrace()
+      }
+    }
+  }
 }
+

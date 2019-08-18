@@ -16,6 +16,8 @@ import io.vertx.sqlclient.Row
  * @author <a href="https://echocow.cn">EchoCow</a>
  * @date 2019/8/17 下午4:26
  */
+@Deprecated(message = "由于 vertx-mysql-client 模块不能够使用而废弃",
+  replaceWith = ReplaceWith("JdbcRepository"))
 open class MysqlRepository(vertx: Vertx) {
   var mysqlPool: MySQLPool = MySQLPool.pool(
     vertx, mySQLConnectOptionsOf(

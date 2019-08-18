@@ -18,20 +18,79 @@ import io.vertx.core.json.JsonObject
  */
 class UserServiceImpl(vertx: Vertx) : JdbcRepository(vertx), UserService {
 
-  override fun retrievePage(page: Int, size: Int, resultHandler: Handler<AsyncResult<JsonArray>>): UserService {
-    val params = JsonArray().add(1)
+  override fun existOne(
+    name: String,
+    email: String,
+    phone: String,
+    resultHandler: Handler<AsyncResult<JsonObject>>
+  ): UserService {
+    var option = ""
+    val params = JsonArray()
+    if (name.isNotEmpty()) {
+      option += "AND name = ?"
+      params.add(name)
+    }
+    if (email.isNotEmpty()) {
+      option += "AND email = ?"
+      params.add(email)
+    }
+    if (phone.isNotEmpty()) {
+      option += "AND phone = ?"
+      params.add(phone)
+    }
+    val promise = Promise.promise<JsonObject>()
+    retrieveOne(EXIST_USER + option, params, promise)
+    promise.future().setHandler(resultHandler)
+    return this
+  }
+
+  override fun retrievePage(
+    name: String,
+    email: String,
+    phone: String,
+    page: Int,
+    size: Int,
+    resultHandler: Handler<AsyncResult<JsonArray>>
+  ): UserService {
+    val params = JsonArray(listOf(name, email, phone, (page - 1) * size, size))
     val promise = Promise.promise<JsonArray>()
-    retrieveArray(RETRIEVE_USER, params, promise)
+    retrieve(RETRIEVE_PAGE, params, promise, listOf("pwd"))
     promise.future().setHandler(resultHandler)
     return this
   }
 
   override fun retrieveUser(userId: Long, resultHandler: Handler<AsyncResult<JsonObject>>): UserService {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    val params = JsonArray().add(userId)
+    val promise = Promise.promise<JsonObject>()
+    retrieveOne(RETRIEVE_USER, params, promise, listOf("pwd"))
+    promise.future().setHandler(resultHandler)
+    return this
   }
 
-  override fun createUser(user: User, resultHandler: Handler<AsyncResult<Void>>): UserService {
-    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+  override fun createUser(user: User, resultHandler: Handler<AsyncResult<Int>>): UserService {
+    val params = JsonArray(
+      listOf(
+        user.name, user.spell, user.pwd, user.status, user.icon, user.email, user.phone,
+        user.onlineStatus, user.sort, user.createUser, user.modifyUser, user.remark, true
+      )
+    )
+    val promise = Promise.promise<Int>()
+    updateOne(INSERT_USER, params, promise)
+    promise.future().setHandler(resultHandler)
+    return this
   }
 
+  override fun updateUser(user: User, resultHandler: Handler<AsyncResult<Int>>): UserService {
+    val params = JsonArray(
+      listOf(
+        user.name, user.spell, user.pwd, user.status, user.icon, user.email, user.phone,
+        user.onlineStatus, user.sort, user.createUser, user.modifyUser, user.remark, user.isEnable,
+        user.id
+      )
+    )
+    val promise = Promise.promise<Int>()
+    updateOne(UPDATE_USER, params, promise)
+    promise.future().setHandler(resultHandler)
+    return this
+  }
 }

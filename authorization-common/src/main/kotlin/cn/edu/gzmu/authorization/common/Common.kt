@@ -3,6 +3,7 @@ package cn.edu.gzmu.authorization.common
 import io.netty.handler.codec.http.HttpHeaderNames
 import io.netty.handler.codec.http.HttpHeaderValues
 import io.netty.handler.codec.http.HttpResponseStatus
+import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.RoutingContext
 
@@ -19,9 +20,16 @@ const val CIRCUIT_MAX_FAILURES = "maxFailures"
 const val CIRCUIT_TIMEOUT = "timeout"
 const val CIRCUIT_RESET_TIMEOUT = "resetTimeout"
 
+const val IS_ENABLE_TRUE = " is_enable = 1"
 const val API_NAME = "api.name"
 
 private fun response(context: RoutingContext, response: JsonObject = JsonObject(), httpStatus: HttpResponseStatus) =
+  context.response()
+    .putHeader(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON)
+    .setStatusCode(httpStatus.code())
+    .end(response.toBuffer())
+
+private fun response(context: RoutingContext, response: JsonArray = JsonArray(), httpStatus: HttpResponseStatus) =
   context.response()
     .putHeader(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON)
     .setStatusCode(httpStatus.code())
@@ -56,6 +64,12 @@ private fun response(
  * ok 200
  */
 fun ok(context: RoutingContext, response: JsonObject = JsonObject()) =
+  response(context, response, HttpResponseStatus.OK)
+
+/**
+ * ok 200
+ */
+fun ok(context: RoutingContext, response: JsonArray = JsonArray()) =
   response(context, response, HttpResponseStatus.OK)
 
 /**
