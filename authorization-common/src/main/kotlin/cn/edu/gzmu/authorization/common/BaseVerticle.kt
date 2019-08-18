@@ -4,16 +4,17 @@ import io.vertx.circuitbreaker.CircuitBreaker
 import io.vertx.circuitbreaker.CircuitBreakerOptions
 import io.vertx.core.CompositeFuture
 import io.vertx.core.Future
-import io.vertx.core.Promise
 import io.vertx.core.logging.LoggerFactory
 import io.vertx.kotlin.coroutines.CoroutineVerticle
 import io.vertx.core.impl.ConcurrentHashSet
 import io.vertx.core.json.JsonObject
+import io.vertx.core.spi.resolver.ResolverProvider.DISABLE_DNS_RESOLVER_PROP_NAME
+import io.vertx.kotlin.core.json.json
+import io.vertx.kotlin.core.json.obj
 import io.vertx.servicediscovery.Record
 import io.vertx.servicediscovery.ServiceDiscovery
 import io.vertx.servicediscovery.ServiceDiscoveryOptions
 import kotlinx.coroutines.launch
-import io.vertx.kotlin.servicediscovery.publishAwait
 import io.vertx.servicediscovery.types.EventBusService
 import io.vertx.servicediscovery.types.HttpEndpoint
 import io.vertx.servicediscovery.types.JDBCDataSource
@@ -31,10 +32,17 @@ abstract class BaseVerticle : CoroutineVerticle() {
 
   protected lateinit var discovery: ServiceDiscovery
   protected lateinit var circuitBreaker: CircuitBreaker
-  protected var registeredRecords: MutableSet<Record> = ConcurrentHashSet()
+  private var registeredRecords: MutableSet<Record> = ConcurrentHashSet()
 
   override suspend fun start() {
-    discovery = ServiceDiscovery.create(vertx, ServiceDiscoveryOptions().setBackendConfiguration(config))
+    System.getProperties().setProperty(DISABLE_DNS_RESOLVER_PROP_NAME, "true")
+    discovery = ServiceDiscovery.create(vertx, ServiceDiscoveryOptions().setBackendConfiguration(json {
+      obj (
+        "host" to "127.0.0.1",
+        "port" to "6379",
+        "key" to "vertx"
+      )
+    }))
     launch {
       val cbOptions = config.getJsonObject(CIRCUIT_BREAKER) ?: JsonObject()
       circuitBreaker = CircuitBreaker.create(

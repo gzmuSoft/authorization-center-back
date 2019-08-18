@@ -1,9 +1,6 @@
 package cn.edu.gzmu.authorization.gateway
 
-import cn.edu.gzmu.authorization.common.RestVerticle
-import cn.edu.gzmu.authorization.common.badGateway
-import cn.edu.gzmu.authorization.common.notFound
-import cn.edu.gzmu.authorization.common.ok
+import cn.edu.gzmu.authorization.common.*
 import com.google.common.base.Splitter
 import io.netty.handler.codec.http.HttpResponseStatus
 import io.vertx.core.Promise
@@ -12,7 +9,6 @@ import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.handler.BodyHandler
 import org.slf4j.LoggerFactory
 import io.vertx.core.http.HttpServerOptions
-import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.client.WebClient
 import io.vertx.kotlin.core.http.listenAwait
@@ -108,8 +104,7 @@ class ApiGatewayVerticle : RestVerticle() {
 
   private suspend fun getAllEndpoints(): List<Record> {
     return discovery.getRecordsAwait { record ->
-      println("123123 ${record.name}")
-      true
+      record.type == HttpEndpoint.TYPE
     }
   }
 }

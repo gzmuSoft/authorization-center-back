@@ -43,7 +43,6 @@ allprojects {
     implementation("io.vertx:vertx-service-proxy")
     implementation("io.vertx:vertx-circuit-breaker")
     implementation("io.vertx:vertx-config")
-    implementation("io.vertx:vertx-mysql-client")
     implementation("io.github.jponge:vertx-boot:1.1.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.0-RC2")
     implementation("org.jetbrains.kotlin:kotlin-reflect")

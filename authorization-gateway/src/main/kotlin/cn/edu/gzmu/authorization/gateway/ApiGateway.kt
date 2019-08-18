@@ -11,4 +11,3 @@ const val PORT = "api.gateway.http.port"
 const val DEFAULT_PORT = 9000
 const val LOCALHOST = "127.0.0.1"
 
-const val API_NAME = "api.name"

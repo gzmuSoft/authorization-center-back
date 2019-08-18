@@ -5,6 +5,7 @@ import io.vertx.codegen.annotations.VertxGen
 import io.vertx.core.AsyncResult
 import io.vertx.codegen.annotations.Fluent
 import io.vertx.core.Handler
+import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 
 
@@ -35,5 +36,14 @@ interface UserService {
    */
   @Fluent
   fun retrieveUser(userId: Long, resultHandler: Handler<AsyncResult<JsonObject>>): UserService
+
+  /**
+   * Retrieve the order with a certain `orderId`.
+   *
+   * @param userId       user id
+   * @param resultHandler async result handler
+   */
+  @Fluent
+  fun retrievePage(page: Int, size: Int, resultHandler: Handler<AsyncResult<JsonArray>>): UserService
 
 }

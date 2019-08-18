@@ -19,6 +19,8 @@ const val CIRCUIT_MAX_FAILURES = "maxFailures"
 const val CIRCUIT_TIMEOUT = "timeout"
 const val CIRCUIT_RESET_TIMEOUT = "resetTimeout"
 
+const val API_NAME = "api.name"
+
 private fun response(context: RoutingContext, response: JsonObject = JsonObject(), httpStatus: HttpResponseStatus) =
   context.response()
     .putHeader(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON)

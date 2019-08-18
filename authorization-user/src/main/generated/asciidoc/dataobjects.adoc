@@ -1,0 +1,29 @@
+= Cheatsheets
+
+[[User]]
+== User
+
+++++
+++++
+'''
+
+[cols=">25%,25%,50%"]
+[frame="topbot"]
+|===
+^|Name | Type ^| Description
+|[[createUser]]`@createUser`|`String`|-
+|[[email]]`@email`|`String`|-
+|[[enable]]`@enable`|`Boolean`|-
+|[[icon]]`@icon`|`String`|-
+|[[id]]`@id`|`Number (long)`|-
+|[[modifyUser]]`@modifyUser`|`String`|-
+|[[name]]`@name`|`String`|-
+|[[onlineStatus]]`@onlineStatus`|`Boolean`|-
+|[[phone]]`@phone`|`String`|-
+|[[pwd]]`@pwd`|`String`|-
+|[[remark]]`@remark`|`String`|-
+|[[sort]]`@sort`|`Number (short)`|-
+|[[spell]]`@spell`|`String`|-
+|[[status]]`@status`|`Number (Integer)`|-
+|===
+
