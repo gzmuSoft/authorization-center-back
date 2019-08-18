@@ -1,6 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
+  id("java")
   kotlin("jvm") version "1.3.30"
   kotlin("kapt") version "1.3.30"
   id("io.vertx.vertx-plugin") version "0.8.0"
@@ -15,6 +16,7 @@ allprojects {
   apply(plugin = "org.jetbrains.kotlin.jvm")
   apply(plugin = "org.jetbrains.kotlin.kapt")
   apply(plugin = "io.vertx.vertx-plugin")
+  apply(plugin = "java")
 
   repositories {
     maven("http://maven.aliyun.com/nexus/content/groups/public/")

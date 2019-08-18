@@ -38,10 +38,12 @@ private fun response(
     .setStatusCode(httpStatus.code())
     .end(
       if (!response.isEmpty) {
-        response.toString()
+        response
+          .put("error_code", httpStatus.code())
+          .toString()
       } else if (ex != null) {
         ex.printStackTrace()
-        ex.message ?: httpStatus.reasonPhrase() ?: response.toString()
+        ex.message ?: httpStatus.reasonPhrase()
       } else
         response
           .put("error_code", httpStatus.code())
@@ -67,6 +69,12 @@ fun created(context: RoutingContext, response: JsonObject = JsonObject()) =
  */
 fun noContent(context: RoutingContext, response: JsonObject = JsonObject()) =
   response(context, response, HttpResponseStatus.NO_CONTENT)
+
+/**
+ * temporarily moved 302
+ */
+fun temporarilyMoved(context: RoutingContext, response: JsonObject = JsonObject()) =
+  response(context, response, HttpResponseStatus.FOUND)
 
 /**
  * bad request 400
