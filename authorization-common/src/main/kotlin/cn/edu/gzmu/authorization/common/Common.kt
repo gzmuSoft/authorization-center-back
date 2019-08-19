@@ -41,20 +41,26 @@ private fun response(
   httpStatus: HttpResponseStatus,
   ex: Throwable?
 ) {
+  response.put("error_code", httpStatus.code())
   context.response()
     .putHeader(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON)
     .setStatusCode(httpStatus.code())
     .end(
-      if (!response.isEmpty) {
-        response
-          .put("error_code", httpStatus.code())
-          .toString()
+      if (response.containsKey("error_message")) {
+        response.toString()
       } else if (ex != null) {
         ex.printStackTrace()
-        ex.message ?: httpStatus.reasonPhrase()
+        response
+          .put(
+            "error_message",
+            try {
+              JsonObject(ex.message).toString()
+            } catch (e: Exception) {
+              ex.message ?: httpStatus.reasonPhrase()
+            }
+          ).toString()
       } else
         response
-          .put("error_code", httpStatus.code())
           .put("error_message", httpStatus.reasonPhrase())
           .toString()
     )

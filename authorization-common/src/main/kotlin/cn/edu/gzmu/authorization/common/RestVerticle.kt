@@ -1,5 +1,7 @@
 package cn.edu.gzmu.authorization.common
 
+import cn.edu.gzmu.authorization.common.exception.BadRequestException
+import cn.edu.gzmu.authorization.common.exception.ResourceNotFoundException
 import io.vertx.ext.web.Router
 import io.vertx.kotlin.core.http.listenAwait
 import io.vertx.core.http.HttpMethod
@@ -76,6 +78,15 @@ abstract class RestVerticle : BaseVerticle() {
 
   protected fun likeParam(param: String?): String = if (Objects.isNull(param)) "%" else "%$param%"
 
+  protected fun exceptionHandle(context: RoutingContext) {
+    val failure = context.failure()
+    failure.printStackTrace()
+    when (failure) {
+      is ResourceNotFoundException -> notFound(context, ex = failure)
+      is BadRequestException -> badRequest(context, ex = failure)
+      else -> internalServerError(context, ex = failure)
+    }
+  }
 
   fun Route.coroutineHandler(fn: suspend (RoutingContext) -> Unit) {
     handler { ctx ->
@@ -94,15 +105,12 @@ abstract class RestVerticle : BaseVerticle() {
       if (ar.succeeded()) {
         val res = ar.result()
         if (res == null || (res is JsonObject && res.isEmpty)) {
-          notFound(context)
+          context.fail(ResourceNotFoundException("资源不存在"))
           return@Handler
         }
         if (res is JsonArray) ok(context, res)
         else ok(context, JsonObject.mapFrom(res))
-      } else {
-        internalServerError(context, ex = ar.cause())
-        ar.cause().printStackTrace()
-      }
+      } else context.fail(ar.cause())
     }
   }
 }

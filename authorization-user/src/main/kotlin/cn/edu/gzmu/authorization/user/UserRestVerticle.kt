@@ -1,6 +1,8 @@
 package cn.edu.gzmu.authorization.user
 
 import cn.edu.gzmu.authorization.common.*
+import cn.edu.gzmu.authorization.common.exception.BadRequestException
+import cn.edu.gzmu.authorization.common.exception.ResourceNotFoundException
 import cn.edu.gzmu.authorization.user.impl.*
 import io.vertx.core.Handler
 import io.vertx.core.json.JsonObject
@@ -28,6 +30,7 @@ class UserRestVerticle(private val userService: UserService) : RestVerticle() {
     router.get(API_USER).handler(this::retrievePage)
     router.post(API_USER).handler(this::addOne)
     router.put(API_USER).handler(this::updateOne)
+    router.route().failureHandler(this::exceptionHandle)
 
     val host = config.getString("product.http.address", "0.0.0.0")
     val port = config.getInteger("product.http.port", 9001)
@@ -77,7 +80,7 @@ class UserRestVerticle(private val userService: UserService) : RestVerticle() {
     UserConverter.fromJson(body, user)
     userService.createUser(user, Handler {
       if (it.succeeded() && it.result() > 0) created(context)
-      else internalServerError(context)
+      else context.fail(it.cause())
     })
   }
 
@@ -90,13 +93,10 @@ class UserRestVerticle(private val userService: UserService) : RestVerticle() {
     val body = context.bodyAsJson
     val user = User()
     UserConverter.fromJson(body, user)
-    if (Objects.isNull(user.id)) {
-      badRequest(context)
-      return
-    }
-    userService.updateUser(user, Handler {
+    if (Objects.isNull(user.id)) context.fail(BadRequestException())
+    else userService.updateUser(user, Handler {
       if (it.succeeded() && it.result() > 0) ok(context, JsonObject())
-      else internalServerError(context, ex = it.cause())
+      else context.fail(it.cause())
     })
   }
 
@@ -113,9 +113,9 @@ class UserRestVerticle(private val userService: UserService) : RestVerticle() {
       request.getParam("phone") ?: "",
       Handler {
         if (it.succeeded()) {
-          if (it.result().isEmpty) notFound(context)
+          if (it.result().isEmpty) context.fail(ResourceNotFoundException())
           else ok(context, JsonObject())
-        } else internalServerError(context, ex = it.cause())
+        } else context.fail(it.cause())
       }
     )
   }
