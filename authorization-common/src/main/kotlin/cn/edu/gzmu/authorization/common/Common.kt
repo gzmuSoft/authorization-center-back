@@ -85,8 +85,11 @@ fun created(context: RoutingContext, response: JsonObject = JsonObject()) =
 /**
  * no content 204
  */
-fun noContent(context: RoutingContext, response: JsonObject = JsonObject()) =
-  response(context, response, HttpResponseStatus.NO_CONTENT)
+fun noContent(context: RoutingContext) =
+  context.response()
+    .putHeader(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON)
+    .setStatusCode(HttpResponseStatus.NO_CONTENT.code())
+    .end()
 
 /**
  * temporarily moved 302

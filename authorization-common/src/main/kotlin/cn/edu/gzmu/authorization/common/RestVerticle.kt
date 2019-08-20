@@ -122,7 +122,7 @@ abstract class RestVerticle : BaseVerticle() {
 
   protected fun resultHandlerUpdate(context: RoutingContext): Handler<AsyncResult<Int>> {
     return Handler {
-      if (it.succeeded() && it.result() > 0) ok(context, JsonObject())
+      if (it.succeeded() && it.result() > 0) noContent(context)
       else context.fail(it.cause())
     }
   }

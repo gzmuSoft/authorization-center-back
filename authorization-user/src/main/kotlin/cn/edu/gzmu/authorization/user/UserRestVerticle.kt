@@ -67,8 +67,8 @@ class UserRestVerticle(private val userService: UserService) : RestVerticle() {
     val request = context.request()
     userService.retrievePage(
       likeParam(request.getParam("name")),
-      likeParam(request.getParam("email")),
-      likeParam(request.getParam("phone")),
+      likeParam(request.getParam("name")),
+      likeParam(request.getParam("name")),
       request.getParam("page")?.toInt() ?: 1,
       request.getParam("size")?.toInt() ?: 10,
       Handler { res ->
