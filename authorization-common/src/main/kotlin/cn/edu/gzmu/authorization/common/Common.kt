@@ -21,6 +21,7 @@ const val CIRCUIT_TIMEOUT = "timeout"
 const val CIRCUIT_RESET_TIMEOUT = "resetTimeout"
 
 const val IS_ENABLE_TRUE = " is_enable = 1"
+const val ORDER_BY_SORT = " order by sort,id"
 const val API_NAME = "api.name"
 
 private fun response(context: RoutingContext, response: JsonObject = JsonObject(), httpStatus: HttpResponseStatus) =

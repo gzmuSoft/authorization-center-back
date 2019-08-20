@@ -1,5 +1,6 @@
 package cn.edu.gzmu.authorization.user.impl
 
+import cn.edu.gzmu.authorization.common.ORDER_BY_SORT
 import cn.edu.gzmu.authorization.common.service.JdbcRepository
 import cn.edu.gzmu.authorization.user.User
 import cn.edu.gzmu.authorization.user.UserService
@@ -17,6 +18,14 @@ import io.vertx.core.json.JsonObject
  * @date 2019/8/17 下午4:21
  */
 class UserServiceImpl(vertx: Vertx) : JdbcRepository(vertx), UserService {
+
+  override fun statusChange(id: Long, status: Boolean, resultHandler: Handler<AsyncResult<Int>>): UserService {
+    val statusValue = if (status) 1 else 0
+    val promise = Promise.promise<Int>()
+    updateOne(STATUS_CHANGE, JsonArray(listOf(statusValue, id)), promise)
+    promise.future().setHandler(resultHandler)
+    return this
+  }
 
   override fun existOne(
     name: String,
@@ -39,7 +48,7 @@ class UserServiceImpl(vertx: Vertx) : JdbcRepository(vertx), UserService {
       params.add(phone)
     }
     val promise = Promise.promise<JsonObject>()
-    retrieveOne(EXIST_USER + option, params, promise)
+    retrieveOne(EXIST_USER + option + ORDER_BY_SORT, params, promise)
     promise.future().setHandler(resultHandler)
     return this
   }

@@ -1,6 +1,7 @@
 package cn.edu.gzmu.authorization.user.impl
 
 import cn.edu.gzmu.authorization.common.IS_ENABLE_TRUE
+import cn.edu.gzmu.authorization.common.ORDER_BY_SORT
 
 /**
  *
@@ -8,9 +9,19 @@ import cn.edu.gzmu.authorization.common.IS_ENABLE_TRUE
  * @author <a href="https://echocow.cn">EchoCow</a>
  * @date 2019/8/17 下午5:28
  */
-const val RETRIEVE_PAGE =
-  "SELECT * FROM sys_user WHERE (name like ? or email like ? or phone like ?) and $IS_ENABLE_TRUE limit ?,?"
-const val RETRIEVE_USER = "SELECT * FROM sys_user WHERE id = ? and $IS_ENABLE_TRUE"
+const val RETRIEVE_PAGE = """
+  SELECT u.*, sr.id role_id, sr.name role_name
+  FROM sys_user u
+           INNER JOIN sys_user_role sur ON u.id = sur.user_id
+           INNER JOIN sys_role sr ON sur.role_id = sr.id
+  WHERE u.is_enable = 1
+    AND sr.is_enable = 1
+    AND sur.is_enable = 1
+    AND (u.name LIKE ? OR u.email LIKE ? OR u.phone LIKE ?)
+  ORDER BY u.sort, u.id
+  LIMIT ?,?;
+"""
+const val RETRIEVE_USER = "SELECT * FROM sys_user WHERE id = ? and $IS_ENABLE_TRUE $ORDER_BY_SORT"
 const val INSERT_USER = """
       INSERT INTO sys_user 
       (name, spell, pwd, status, icon, email, phone, online_status, sort, create_user,
@@ -25,9 +36,17 @@ const val UPDATE_USER = """
 const val EXIST_USER = """
       SELECT * FROM sys_user WHERE $IS_ENABLE_TRUE
 """
+const val STATUS_CHANGE = """
+      UPDATE sys_user
+      SET status = ?
+      WHERE id = ?
+"""
+
+
 const val SERVICE_NAME = "user-storage-eb-service"
 const val SERVICE_ADDRESS = "service.user.storage"
 
 const val API_USER = "/"
 const val API_USER_ONE = "/:id"
 const val API_EXIST = "/exist"
+const val API_STATUS = "/status"

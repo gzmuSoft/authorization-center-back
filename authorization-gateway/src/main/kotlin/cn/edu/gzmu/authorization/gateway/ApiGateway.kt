@@ -11,4 +11,4 @@ const val PORT = "api.gateway.http.port"
 const val DEFAULT_PORT = 9000
 const val LOCALHOST = "127.0.0.1"
 
-const val REDIRECT_URI = "http://127.0.0.1:8081/"
+const val REDIRECT_URI = "http://127.0.0.1:8081"

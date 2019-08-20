@@ -77,4 +77,7 @@ interface UserService {
     resultHandler: Handler<AsyncResult<JsonArray>>
   ): UserService
 
+  @Fluent
+  fun statusChange(id: Long, status: Boolean, resultHandler: Handler<AsyncResult<Int>>): UserService
+
 }

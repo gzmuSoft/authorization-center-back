@@ -32,7 +32,7 @@ import io.vertx.core.logging.LoggerFactory
  * @date 2019/8/16 下午8:27
  */
 abstract class RestVerticle : BaseVerticle() {
-  private val log = LoggerFactory.getLogger(this::class.java.asSubclass(this::class.java))
+  protected val log = LoggerFactory.getLogger(this::class.java.asSubclass(this::class.java))
 
   suspend fun createHttpServer(router: Router, host: String, port: Int) {
     vertx.createHttpServer()
@@ -117,6 +117,20 @@ abstract class RestVerticle : BaseVerticle() {
         if (res is JsonArray) ok(context, res)
         else ok(context, JsonObject.mapFrom(res))
       } else context.fail(ar.cause())
+    }
+  }
+
+  protected fun resultHandlerUpdate(context: RoutingContext): Handler<AsyncResult<Int>> {
+    return Handler {
+      if (it.succeeded() && it.result() > 0) ok(context, JsonObject())
+      else context.fail(it.cause())
+    }
+  }
+
+  protected fun resultHandlerCreate(context: RoutingContext): Handler<AsyncResult<Int>> {
+    return Handler {
+      if (it.succeeded() && it.result() > 0) created(context)
+      else context.fail(it.cause())
     }
   }
 }
