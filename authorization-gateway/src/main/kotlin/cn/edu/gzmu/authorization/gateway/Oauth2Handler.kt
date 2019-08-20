@@ -53,7 +53,7 @@ class Oauth2Handler(vertx: Vertx) {
   fun authorize(context: RoutingContext) {
     val authorizeURL = oauth2().authorizeURL(json {
       obj(
-        "redirect_uri" to "http://example.com",
+        "redirect_uri" to REDIRECT_URI,
         "scope" to "all"
       )
     })
@@ -66,10 +66,10 @@ class Oauth2Handler(vertx: Vertx) {
 
   fun login(context: RoutingContext) {
     val code = context.request().getParam("code")
-    oauth2().authenticate(JsonObject().put("code", code).put("redirect_uri", "http://example.com")) { res ->
+    oauth2().authenticate(JsonObject().put("code", code).put("redirect_uri", REDIRECT_URI)) { res ->
       if (res.failed()) {
         res.cause().printStackTrace()
-        unauthorized(context, JsonObject(res.cause().message?.substring(1)))
+        unauthorized(context, ex = res.cause())
       } else {
         context.setUser(res.result())
         ok(context, res.result().principal())

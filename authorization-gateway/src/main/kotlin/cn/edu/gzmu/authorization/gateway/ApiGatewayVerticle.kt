@@ -1,6 +1,7 @@
 package cn.edu.gzmu.authorization.gateway
 
 import cn.edu.gzmu.authorization.common.*
+import cn.edu.gzmu.authorization.common.exception.ResourceNotFoundException
 import com.google.common.base.Splitter
 import io.netty.handler.codec.http.HttpResponseStatus
 import io.vertx.core.Promise
@@ -44,7 +45,7 @@ class ApiGatewayVerticle : RestVerticle() {
     router.get("/login/:code").handler(oauth2Handler::login)
     router.route().handler(oauth2Handler::decryptToken)
     router.route("/api/*").handler(this::dispatchRequests)
-
+    router.route().failureHandler(this::exceptionHandle)
     val httpServerOptions = HttpServerOptions()
     vertx.createHttpServer(httpServerOptions)
       .requestHandler(router::accept)
@@ -63,8 +64,7 @@ class ApiGatewayVerticle : RestVerticle() {
         val records = getAllEndpoints()
         val path = context.request().uri()
         if (path.length <= initialOffset) {
-          notFound(context)
-          it.complete()
+          context.fail(ResourceNotFoundException("Client $path not found!"))
           return@launch
         }
         val prefix = Splitter.on("/").omitEmptyStrings().splitToList(path)[1]
@@ -77,12 +77,11 @@ class ApiGatewayVerticle : RestVerticle() {
         if (client.isPresent) {
           doDispatch(context, newPath, discovery.getReference(client.get()).getAs(WebClient::class.java), it)
         } else {
-          notFound(context)
-          it.complete()
+          context.fail(ResourceNotFoundException("Client $prefix not found!"))
         }
       }
     }.setHandler {
-      if (it.failed()) badGateway(context)
+      if (it.failed()) context.fail(it.cause())
     }
 
   }
@@ -92,8 +91,7 @@ class ApiGatewayVerticle : RestVerticle() {
       if (result.succeeded()) {
         val response = result.result()
         if (response.statusCode() >= HttpResponseStatus.INTERNAL_SERVER_ERROR.code()) {
-          log.error("Error: ${response.statusCode()} : ${response.bodyAsString()}")
-          promise.fail("Error: ${response.statusCode()} : ${response.bodyAsString()}")
+          context.fail(InterruptedException("Error: ${response.statusCode()} : ${response.bodyAsString()}"))
         } else {
           context.response().headers().addAll(response.headers())
           promise.complete()
@@ -101,8 +99,7 @@ class ApiGatewayVerticle : RestVerticle() {
         }
         ServiceDiscovery.releaseServiceObject(discovery, client)
       } else {
-        log.error("Error: http $path failed!")
-        promise.fail("Error: http $path failed!")
+        context.fail(InterruptedException("Error: http $path failed!"))
       }
     }
   }

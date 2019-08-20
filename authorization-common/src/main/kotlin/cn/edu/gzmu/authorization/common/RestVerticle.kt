@@ -1,6 +1,7 @@
 package cn.edu.gzmu.authorization.common
 
 import cn.edu.gzmu.authorization.common.exception.BadRequestException
+import cn.edu.gzmu.authorization.common.exception.InternalServerErrorException
 import cn.edu.gzmu.authorization.common.exception.ResourceNotFoundException
 import io.vertx.ext.web.Router
 import io.vertx.kotlin.core.http.listenAwait
@@ -21,6 +22,7 @@ import io.vertx.core.Handler
 import io.vertx.core.Promise
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
+import io.vertx.core.logging.LoggerFactory
 
 
 /**
@@ -30,6 +32,8 @@ import io.vertx.core.json.JsonObject
  * @date 2019/8/16 下午8:27
  */
 abstract class RestVerticle : BaseVerticle() {
+  private val log = LoggerFactory.getLogger(this::class.java.asSubclass(this::class.java))
+
   suspend fun createHttpServer(router: Router, host: String, port: Int) {
     vertx.createHttpServer()
       .requestHandler(router::accept)
@@ -81,9 +85,11 @@ abstract class RestVerticle : BaseVerticle() {
   protected fun exceptionHandle(context: RoutingContext) {
     val failure = context.failure()
     failure.printStackTrace()
+    log.error(failure)
     when (failure) {
       is ResourceNotFoundException -> notFound(context, ex = failure)
       is BadRequestException -> badRequest(context, ex = failure)
+      is InternalServerErrorException -> internalServerError(context, ex = failure)
       else -> internalServerError(context, ex = failure)
     }
   }

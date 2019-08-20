@@ -46,23 +46,20 @@ private fun response(
     .putHeader(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON)
     .setStatusCode(httpStatus.code())
     .end(
-      if (response.containsKey("error_message")) {
-        response.toString()
-      } else if (ex != null) {
-        ex.printStackTrace()
-        response
-          .put(
-            "error_message",
-            try {
-              JsonObject(ex.message).toString()
-            } catch (e: Exception) {
-              ex.message ?: httpStatus.reasonPhrase()
-            }
-          ).toString()
-      } else
-        response
+      when {
+        response.containsKey("error_message") -> response.toString()
+        ex != null -> response.put(
+          "error_message",
+          try {
+            JsonObject(ex.message).toString()
+          } catch (e: Exception) {
+            ex.message ?: httpStatus.reasonPhrase()
+          }
+        ).toString()
+        else -> response
           .put("error_message", httpStatus.reasonPhrase())
           .toString()
+      }
     )
 }
 
