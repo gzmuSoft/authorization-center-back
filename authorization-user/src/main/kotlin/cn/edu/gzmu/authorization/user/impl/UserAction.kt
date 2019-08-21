@@ -36,6 +36,19 @@ const val INSERT_USER = """
                             modify_user, remark, is_enable)
       values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 """
+const val INSERT_USER_ROLE = """
+  INSERT INTO sys_user_role (user_id, role_id, is_enable)
+  VALUES (?, ?, ?)
+"""
+const val RETRIEVE_USER_ROLE = """
+  SELECT * FROM sys_user_role WHERE user_id = ?  
+"""
+const val UPDATE_USER_ROLE = """
+  UPDATE sys_user_role SET is_enable = 1 WHERE id = ?
+"""
+const val DELETE_USER_ROLE = """
+  UPDATE sys_user_role SET is_enable = 0 WHERE id = ?
+"""
 const val UPDATE_USER = """
       UPDATE sys_user SET name=?, spell=?, pwd=?, status=?, icon=?, email=?, phone=?,
        online_status=?, sort=?,modify_user=?, remark=?, is_enable=?

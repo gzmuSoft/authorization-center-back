@@ -127,9 +127,23 @@ abstract class RestVerticle : BaseVerticle() {
     }
   }
 
+  protected fun resultHandlerUpdateVoid(context: RoutingContext): Handler<AsyncResult<Void>> {
+    return Handler {
+      if (it.succeeded()) noContent(context)
+      else context.fail(it.cause())
+    }
+  }
+
   protected fun resultHandlerCreate(context: RoutingContext): Handler<AsyncResult<Int>> {
     return Handler {
       if (it.succeeded() && it.result() > 0) created(context)
+      else context.fail(it.cause())
+    }
+  }
+
+  protected fun resultHandlerCreateVoid(context: RoutingContext): Handler<AsyncResult<Void>> {
+    return Handler {
+      if (it.succeeded()) created(context)
       else context.fail(it.cause())
     }
   }

@@ -26,7 +26,7 @@ interface UserService {
    * @param resultHandler 异步处理
    */
   @Fluent
-  fun createUser(user: User, resultHandler: Handler<AsyncResult<Int>>): UserService
+  fun createUser(user: User, roles: JsonArray, resultHandler: Handler<AsyncResult<Void>>): UserService
 
   /**
    * 修改一个用户
@@ -35,7 +35,7 @@ interface UserService {
    * @param resultHandler 异步处理
    */
   @Fluent
-  fun updateUser(user: User, resultHandler: Handler<AsyncResult<Int>>): UserService
+  fun updateUser(user: User, roles: JsonArray, resultHandler: Handler<AsyncResult<Void>>): UserService
 
   /**
    * 是否存在一个用户

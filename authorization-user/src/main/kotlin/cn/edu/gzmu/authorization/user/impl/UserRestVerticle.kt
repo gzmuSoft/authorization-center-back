@@ -103,7 +103,9 @@ class UserRestVerticle(private val userService: UserService) : RestVerticle() {
     val body = context.bodyAsJson
     val user = User()
     UserConverter.fromJson(body, user)
-    userService.createUser(user, resultHandlerCreate(context))
+    val roles = body.getJsonArray("roles")
+    if (Objects.isNull(roles)) context.fail(BadRequestException())
+    userService.createUser(user, roles, resultHandlerCreateVoid(context))
   }
 
   /**
@@ -115,8 +117,9 @@ class UserRestVerticle(private val userService: UserService) : RestVerticle() {
     val body = context.bodyAsJson
     val user = User()
     UserConverter.fromJson(body, user)
-    if (Objects.isNull(user.id)) context.fail(BadRequestException())
-    else userService.updateUser(user, resultHandlerUpdate(context))
+    val roles = body.getJsonArray("roles")
+    if (Objects.isNull(user.id) || Objects.isNull(roles)) context.fail(BadRequestException())
+    else userService.updateUser(user, roles, resultHandlerUpdateVoid(context))
   }
 
   /**
