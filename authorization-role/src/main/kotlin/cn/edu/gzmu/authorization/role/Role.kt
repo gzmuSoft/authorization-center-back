@@ -1,28 +1,27 @@
-package cn.edu.gzmu.authorization.user
+package cn.edu.gzmu.authorization.role
 
 import io.vertx.codegen.annotations.DataObject
 import io.vertx.core.json.JsonObject
 import io.vertx.kotlin.core.json.get
+import io.vertx.kotlin.core.json.json
+import io.vertx.kotlin.core.json.obj
 import java.time.LocalDateTime
 
 /**
  *
  *
  * @author <a href="https://echocow.cn">EchoCow</a>
- * @date 2019/8/17 上午10:34
+ * @date 2019/8/21 下午2:16
  */
 @DataObject(generateConverter = true)
-data class User(
+data class Role(
   var id: Long = 0,
   var name: String? = null,
   var spell: String? = null,
-  var pwd: String? = null,
-  var status: Int? = null,
-  var icon: String? = null,
-  var email: String? = null,
-  var phone: String? = null,
-  var onlineStatus: Boolean = false,
-  var sort: Short = 1,
+  var des: String? = null,
+  var iconCls: String? = null,
+  var parentId: Long = 0,
+  var sort: Int = 1,
   var createUser: String? = null,
   var createTime: LocalDateTime = LocalDateTime.now(),
   var modifyUser: String? = null,
@@ -32,25 +31,23 @@ data class User(
 ) {
 
   fun toJson(): JsonObject =
-    JsonObject().put("id", id).put("name", name)
-      .put("spell", spell).put("pwd", pwd)
-      .put("status", status).put("icon", icon)
-      .put("email", email).put("phone", phone)
-      .put("online_status", onlineStatus).put("sort", sort)
-      .put("create_user", createUser).put("create_time", createTime)
-      .put("modify_user", modifyUser).put("modify_time", modifyTime)
-      .put("remark", remark).put("isEnable", isEnable)
+    json {
+      obj(
+        "id" to id, "name" to name, "spell" to spell,
+        "des" to des, "icon_cls" to iconCls, "parent_id" to parentId,
+        "sort" to sort, "create_user" to createUser, "create_time" to createTime,
+        "modify_user" to modifyUser, "modify_time" to modifyTime,
+        "remark" to remark, "is_enable" to isEnable
+      )
+    }
 
   constructor(json: JsonObject) : this() {
     this.id = json.getLong("id", 0)!!
     this.name = json.getString("name")
     this.spell = json.getString("spell")
-    this.pwd = json.getString("pwd")
-    this.status = json.getInteger("status")
-    this.icon = json.getString("icon")
-    this.email = json.getString("email")
-    this.phone = json.getString("phone")
-    this.onlineStatus = json.getBoolean("online_status")
+    this.des = json.getString("des")
+    this.iconCls = json.getString("icon_cls")
+    this.parentId = json.getLong("parent_id", 0)
     this.sort = json["sort"]
     this.createUser = json["create_user"]
     this.createTime = json["create_time"]

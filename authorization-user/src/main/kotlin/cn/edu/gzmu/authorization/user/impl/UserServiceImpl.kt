@@ -93,7 +93,7 @@ class UserServiceImpl(vertx: Vertx) : JdbcRepository(vertx), UserService {
     val params = JsonArray(
       listOf(
         user.name, user.spell, user.pwd, user.status, user.icon, user.email, user.phone,
-        user.onlineStatus, user.sort, user.createUser, user.modifyUser, user.remark, user.isEnable,
+        user.onlineStatus, user.sort, user.modifyUser, user.remark, user.isEnable,
         user.id
       )
     )

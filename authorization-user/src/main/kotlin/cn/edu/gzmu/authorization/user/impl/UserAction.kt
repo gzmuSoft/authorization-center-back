@@ -9,6 +9,14 @@ import cn.edu.gzmu.authorization.common.ORDER_BY_SORT
  * @author <a href="https://echocow.cn">EchoCow</a>
  * @date 2019/8/17 下午5:28
  */
+const val SERVICE_NAME = "user-storage-eb-service"
+const val SERVICE_ADDRESS = "service.user.storage"
+
+const val API_USER = "/"
+const val API_USER_ONE = "/:id"
+const val API_EXIST = "/exist"
+const val API_STATUS = "/status"
+
 const val RETRIEVE_PAGE = """
   SELECT u.*, sr.id role_id, sr.name role_name
   FROM sys_user u
@@ -30,8 +38,8 @@ const val INSERT_USER = """
 """
 const val UPDATE_USER = """
       UPDATE sys_user SET name=?, spell=?, pwd=?, status=?, icon=?, email=?, phone=?,
-       online_status=?, sort=?, create_user=?, modify_user=?, remark=?, is_enable=?
-       WHERE id = ?
+       online_status=?, sort=?,modify_user=?, remark=?, is_enable=?
+       WHERE id = ? AND $IS_ENABLE_TRUE
 """
 const val EXIST_USER = """
       SELECT * FROM sys_user WHERE $IS_ENABLE_TRUE
@@ -41,12 +49,3 @@ const val STATUS_CHANGE = """
       SET status = ?
       WHERE id = ?
 """
-
-
-const val SERVICE_NAME = "user-storage-eb-service"
-const val SERVICE_ADDRESS = "service.user.storage"
-
-const val API_USER = "/"
-const val API_USER_ONE = "/:id"
-const val API_EXIST = "/exist"
-const val API_STATUS = "/status"

@@ -1,9 +1,11 @@
-package cn.edu.gzmu.authorization.user
+package cn.edu.gzmu.authorization.user.impl
 
 import cn.edu.gzmu.authorization.common.*
 import cn.edu.gzmu.authorization.common.exception.BadRequestException
 import cn.edu.gzmu.authorization.common.exception.ResourceNotFoundException
-import cn.edu.gzmu.authorization.user.impl.*
+import cn.edu.gzmu.authorization.user.User
+import cn.edu.gzmu.authorization.user.UserConverter
+import cn.edu.gzmu.authorization.user.UserService
 import io.vertx.core.Handler
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
@@ -146,7 +148,7 @@ class UserRestVerticle(private val userService: UserService) : RestVerticle() {
     val request = context.request()
     val id = request.getParam("id")
     val status = request.getParam("status")
-    if (id.isNullOrBlank() || status.isNullOrBlank()) context.fail(BadRequestException("缺少必要的参数信息"))
+    if (id == null || status == null || id.isNullOrBlank() || status.isNullOrBlank()) context.fail(BadRequestException("缺少必要的参数信息"))
     userService.statusChange(id!!.toLong(), status!!.toBoolean(), resultHandlerUpdate(context))
   }
 }

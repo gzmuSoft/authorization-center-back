@@ -79,8 +79,11 @@ fun ok(context: RoutingContext, response: JsonArray = JsonArray()) =
 /**
  * created 201
  */
-fun created(context: RoutingContext, response: JsonObject = JsonObject()) =
-  response(context, response, HttpResponseStatus.CREATED)
+fun created(context: RoutingContext) =
+  context.response()
+    .putHeader(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON)
+    .setStatusCode(HttpResponseStatus.CREATED.code())
+    .end()
 
 /**
  * no content 204

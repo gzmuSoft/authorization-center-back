@@ -4,6 +4,7 @@ import cn.edu.gzmu.authorization.common.API_NAME
 import cn.edu.gzmu.authorization.common.BaseVerticle
 import cn.edu.gzmu.authorization.user.impl.SERVICE_ADDRESS
 import cn.edu.gzmu.authorization.user.impl.SERVICE_NAME
+import cn.edu.gzmu.authorization.user.impl.UserRestVerticle
 import cn.edu.gzmu.authorization.user.impl.UserServiceImpl
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Vertx
