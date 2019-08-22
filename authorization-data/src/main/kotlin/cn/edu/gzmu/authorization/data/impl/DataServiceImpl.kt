@@ -1,5 +1,6 @@
 package cn.edu.gzmu.authorization.data.impl
 
+import cn.edu.gzmu.authorization.common.ORDER_BY_SORT
 import cn.edu.gzmu.authorization.common.service.JdbcRepository
 import cn.edu.gzmu.authorization.data.DataService
 import io.vertx.core.AsyncResult
@@ -28,7 +29,7 @@ class DataServiceImpl(vertx: Vertx) : JdbcRepository(vertx), DataService {
       options += "AND type = ?"
       params.add(type.toInt())
     }
-    retrieve(RETRIEVE + options, params, promise)
+    retrieve(RETRIEVE + options + ORDER_BY_SORT, params, promise)
     promise.future().setHandler(resultHandler)
     return this
   }
