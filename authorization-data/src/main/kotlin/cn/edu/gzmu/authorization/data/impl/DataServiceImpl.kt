@@ -7,7 +7,7 @@ import io.vertx.core.Handler
 import io.vertx.core.Promise
 import io.vertx.core.Vertx
 import io.vertx.core.json.JsonArray
-import io.vertx.core.json.JsonObject
+
 /**
  *
  *
@@ -16,9 +16,19 @@ import io.vertx.core.json.JsonObject
  */
 class DataServiceImpl(vertx: Vertx) : JdbcRepository(vertx), DataService {
 
-  override fun retrieve(parentId: Long, resultHandler: Handler<AsyncResult<JsonArray>>): DataService {
+  override fun retrieve(parentId: String?, type: String?, resultHandler: Handler<AsyncResult<JsonArray>>): DataService {
     val promise = Promise.promise<JsonArray>()
-    retrieve(RETRIEVE, JsonArray(listOf(parentId)), promise)
+    val params = JsonArray()
+    var options = ""
+    if (parentId != null && parentId.isNotBlank()) {
+      options += "AND parentId = ?"
+      params.add(parentId.toLong())
+    }
+    if (type != null && type.isNotBlank()) {
+      options += "AND type = ?"
+      params.add(type.toInt())
+    }
+    retrieve(RETRIEVE + options, params, promise)
     promise.future().setHandler(resultHandler)
     return this
   }

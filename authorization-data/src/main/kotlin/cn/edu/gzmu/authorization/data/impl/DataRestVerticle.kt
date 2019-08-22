@@ -31,9 +31,8 @@ class DataRestVerticle(private val dataService: DataService) : RestVerticle() {
   }
 
   private suspend fun retrieve(context: RoutingContext) {
-    val parent = context.request().getParam("parentId")
-    var parentId = 0L
-    if (parent != null && parent.isNotBlank()) parentId = parent.toLong()
-    dataService.retrieve(parentId, resultHandlerNonEmpty(context))
+    val parentId = context.request().getParam("parentId")
+    val type = context.request().getParam("type")
+    dataService.retrieve(parentId, type, resultHandlerNonEmpty(context))
   }
 }

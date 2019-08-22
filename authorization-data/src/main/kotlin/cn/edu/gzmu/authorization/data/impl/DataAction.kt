@@ -14,5 +14,5 @@ const val SERVICE_ADDRESS = "service.data.storage"
 const val API_DATA = "/"
 
 const val RETRIEVE = """
-  SELECT * FROM sys_data WHERE parent_id = ? and $IS_ENABLE_TRUE;  
+  SELECT * FROM sys_data WHERE $IS_ENABLE_TRUE  
 """

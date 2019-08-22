@@ -18,6 +18,6 @@ import io.vertx.core.json.JsonArray
 interface DataService {
 
   @Fluent
-  fun retrieve(parentId: Long, resultHandler: Handler<AsyncResult<JsonArray>>): DataService
+  fun retrieve(parentId: String?, type: String?, resultHandler: Handler<AsyncResult<JsonArray>>): DataService
 
 }
