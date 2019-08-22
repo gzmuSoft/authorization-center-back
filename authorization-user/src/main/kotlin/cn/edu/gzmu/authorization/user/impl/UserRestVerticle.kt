@@ -76,7 +76,7 @@ class UserRestVerticle(private val userService: UserService) : RestVerticle() {
       Handler { res ->
         if (res.succeeded()) {
           val list = res.result().list.stream().map { it as JsonObject }.collect(Collectors.toList())
-          val result = list.stream().map {
+          val result = list.map {
             val roles = list.filter { ele -> it.getLong("id") == ele.getLong("id") }
               .map { ele ->
                 json {
@@ -85,9 +85,9 @@ class UserRestVerticle(private val userService: UserService) : RestVerticle() {
                     "name" to ele.getString("role_name")
                   )
                 }
-              }.toCollection(mutableListOf())
+              }
             it.put("roles", JsonArray(roles))
-          }.collect(Collectors.toList())
+          }
           ok(context, JsonArray(result.distinctBy { it.getLong("id") }))
         } else context.fail(res.cause())
       }
