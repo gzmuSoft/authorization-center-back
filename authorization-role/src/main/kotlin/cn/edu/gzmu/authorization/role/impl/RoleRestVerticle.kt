@@ -2,21 +2,14 @@ package cn.edu.gzmu.authorization.role.impl
 
 import cn.edu.gzmu.authorization.common.RestVerticle
 import cn.edu.gzmu.authorization.common.exception.BadRequestException
-import cn.edu.gzmu.authorization.common.ok
 import cn.edu.gzmu.authorization.role.Role
 import cn.edu.gzmu.authorization.role.RoleConverter
 import cn.edu.gzmu.authorization.role.RoleService
-import io.vertx.core.Handler
-import io.vertx.core.json.JsonArray
-import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.handler.BodyHandler
-import io.vertx.kotlin.core.json.json
-import io.vertx.kotlin.core.json.obj
 import kotlinx.coroutines.launch
 import java.util.*
-import java.util.stream.Collectors
 
 /**
  *
@@ -53,26 +46,7 @@ class RoleRestVerticle(private val roleService: RoleService) : RestVerticle() {
   }
 
   private suspend fun retrieve(context: RoutingContext) {
-    roleService.retrieve(Handler { res ->
-      if (res.succeeded()) {
-        val list = res.result().list.stream().map { it as JsonObject }.collect(Collectors.toList())
-        val result = list.map {
-          val roles = list.filter { ele -> it.getLong("id") == ele.getLong("id") }
-            .map { ele ->
-              json {
-                obj(
-                  "id" to ele.getLong("role_id"),
-                  "name" to ele.getString("role_name")
-                )
-              }
-            }
-          it.put("roles", JsonArray(roles))
-        }
-        ok(context, JsonArray(result.distinctBy { it.getLong("id") }))
-      } else {
-        context.fail(res.cause())
-      }
-    })
+    roleService.retrieve(resultHandlerNonEmpty(context))
   }
 
   private suspend fun update(context: RoutingContext) {

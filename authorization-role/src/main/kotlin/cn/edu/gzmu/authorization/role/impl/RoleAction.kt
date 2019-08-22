@@ -14,7 +14,7 @@ const val SERVICE_ADDRESS = "service.role.storage"
 const val API_ROLE = "/"
 const val API_ROLE_IS_ENABLE = "/enable"
 
-const val RETRIEVE = "SELECT * FROM sys_role WHERE"
+const val RETRIEVE = "SELECT * FROM sys_role"
 const val INSERT_ROLE = """
   INSERT INTO sys_role (name, spell, des, icon_cls, parent_id, sort, create_user, create_time, 
                         modify_user, modify_time, remark, is_enable)
