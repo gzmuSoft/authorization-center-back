@@ -2,4 +2,8 @@
 
 image:https://img.shields.io/badge/vert.x-3.8.0-purple.svg[link="https://vertx.io"]
 
-贵州民族大学授权中心
+贵州民族大学授权中心——废弃
+
+当初想复杂了，就一个授权中心而言，没有必要做成微服务那么复杂，因而重做。
+
+此项目舍不得删除，留着吧。
